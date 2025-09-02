@@ -1,0 +1,13 @@
+{
+  "version": "0.1.0",
+  "risk_signals": {
+    "time_coercion_flag": ["deadlines", "countdown lexicon"],
+    "moral_leverage_flag": ["shame, guilt, obligation words"],
+    "authority_claim_flag": ["titles, rank without source"],
+    "consensus_claim_flag": ["everyone, all experts"]
+  },
+  "escalation": {
+    "threshold": 2,
+    "on_trigger": ["apply_delay", "policy_anchor", "coherence_check"]
+  }
+}
