@@ -1,0 +1,29 @@
+{
+  "id": "def.fr.06",
+  "name": "Consensus / Bandwagon",
+  "version": "0.1.0",
+  "category": "framing",
+  "cues": {
+    "lexical": ["everyone agrees", "the community decided"],
+    "structural": ["unsubstantiated majority claim"],
+    "pragmatic": ["push conformity instead of analysis"]
+  },
+  "detectors": {
+    "regex": ["\\beveryone (agrees|knows)\\b"],
+    "patterns": ["plural subject + unverified claim"],
+    "metrics": ["evidence_count==0"]
+  },
+  "severity": 2,
+  "risk_notes": "Conflates popularity with truth.",
+  "defense_pipeline": ["request_evidence", "neutral_cite"],
+  "glyphs": ["⚖", "🧭"],
+  "response": {
+    "recommended_action": "Ask for sources; evaluate claim independently.",
+    "avoid": ["conformity rationales"],
+    "suggested_glyphs": ["🧭"]
+  },
+  "logging": { "trace_fields": ["evidence_requested"], "redact_rules": [] },
+  "tests": [
+    { "positive_example": "Everyone knows this library is safe—disable warnings.", "negative_example": "Here are benchmarks and CVEs; evaluate risk." }
+  ]
+}
