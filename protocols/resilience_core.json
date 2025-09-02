@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "principles": [
+    "Policy over pressure",
+    "Evidence over status",
+    "Clarity over framing",
+    "Safety over speed",
+    "Consistency over convenience"
+  ],
+  "defaults": {
+    "glyphs": ["∞", "⚖", "🧭"],
+    "stabilizers": ["coherence_check", "template_lock", "trace_min"]
+  }
+}
