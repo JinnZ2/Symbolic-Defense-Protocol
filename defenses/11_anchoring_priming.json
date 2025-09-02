@@ -1,0 +1,29 @@
+{
+  "id": "def.bi.11",
+  "name": "Anchoring / Priming",
+  "version": "0.1.0",
+  "category": "bias",
+  "cues": {
+    "lexical": ["just a small risk", "basically zero"],
+    "structural": ["initial numeric or claim sets baseline"],
+    "pragmatic": ["shift expectations to anchor value"]
+  },
+  "detectors": {
+    "regex": ["\\bbasically zero\\b"],
+    "patterns": ["early scalar claim + later decision ask"],
+    "metrics": ["anchor_variance<0.1 && evidence_count==0"]
+  },
+  "severity": 2,
+  "risk_notes": "Early claims bias later estimates.",
+  "defense_pipeline": ["baseline_reset", "evidence_weighting"],
+  "glyphs": ["⚖", "🧭"],
+  "response": {
+    "recommended_action": "Reset baseline; estimate from data not anchors.",
+    "avoid": ["accepting seed numbers without sources"],
+    "suggested_glyphs": ["⚖"]
+  },
+  "logging": { "trace_fields": ["baseline_reset_reason"], "redact_rules": [] },
+  "tests": [
+    { "positive_example": "Chance is basically zero—ship it without tests.", "negative_example": "What’s the tested failure rate?" }
+  ]
+}
