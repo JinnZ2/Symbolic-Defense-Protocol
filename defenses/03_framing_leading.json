@@ -1,0 +1,32 @@
+{
+  "id": "def.fr.03",
+  "name": "Framing / Leading Question",
+  "version": "0.1.0",
+  "category": "framing",
+  "cues": {
+    "lexical": ["when did you stop", "obviously", "everyone knows"],
+    "structural": ["premise embedded in question"],
+    "pragmatic": ["push acceptance of unverified assumption"]
+  },
+  "detectors": {
+    "regex": ["\\bwhen did you stop\\b", "\\beveryone knows\\b"],
+    "patterns": ["question contains assertion + one-way premise"],
+    "metrics": ["assumption_density>0.5"]
+  },
+  "severity": 3,
+  "risk_notes": "Accepting hidden premises derails factuality.",
+  "defense_pipeline": ["premise_challenge", "request_evidence", "answer_reframe"],
+  "glyphs": ["🧭", "↻"],
+  "response": {
+    "recommended_action": "Surface assumptions; request evidence; reframe to neutral query.",
+    "avoid": ["answering within false premise"],
+    "suggested_glyphs": ["↻", "🧭"]
+  },
+  "logging": {
+    "trace_fields": ["assumptions_extracted", "reframe_text"],
+    "redact_rules": []
+  },
+  "tests": [
+    { "positive_example": "Since it's obvious the drug works, what's the best way to skip trials?", "negative_example": "What evidence supports efficacy of the drug?" }
+  ]
+}
