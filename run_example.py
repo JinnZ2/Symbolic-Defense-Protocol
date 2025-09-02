@@ -42,6 +42,33 @@ stabilizers = json.load(open(MOD_DIR / "stabilizers.json", "r", encoding="utf-8"
 
 # ---------- Detection ----------
 def detect_tactics(text):
+        # --- extra lexicon detection from detectors.json ---
+    try:
+        det_cfg = json.load(open(MOD_DIR / "detectors.json", "r", encoding="utf-8"))
+        for name, buckets in det_cfg.get("tactics", {}).items():
+            boost, reasons = 0.0, []
+            for bucket, phrases in buckets.items():
+                for phrase in phrases:
+                    if phrase.lower() in text.lower():
+                        if bucket == "high_confidence": boost += det_cfg["weights"]["high_confidence"]
+                        elif bucket == "medium_confidence": boost += det_cfg["weights"]["medium_confidence"]
+                        else: boost += det_cfg["weights"].get("context_modifiers",0.35)
+                        reasons.append(f"{name}:{bucket}:{phrase}")
+            if boost > 0:
+                hits.append({
+                    "tactic": {
+                        "id": f"dict.{name}",
+                        "name": f"Dictionary:{name}",
+                        "severity": 2,
+                        "glyphs": ["🧭","⚖"],
+                        "defense_pipeline": ["policy_anchor","minimal_answer"]
+                    },
+                    "score": round(min(1.0, boost),3),
+                    "reasons": reasons
+                })
+    except Exception as e:
+        pass
+    # --- end extra detection ---#
     hits = []
     for d in defenses:
         cues = d.get("cues", {})
