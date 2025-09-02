@@ -127,21 +127,7 @@ def detect_tactics(text):
                 pass
 
         # simple pattern approximation via token overlap
-        for pat in det.get("patterns", []) or []:
-            sim = jaccard(pat, text)
-            if sim >= 0.32:
-                score += 0.4
-                reasons.append(f"pattern~{sim:.2f}:{pat[:36]}…")
-
-        if score >= 0.8:  # threshold; tune as needed
-            hits.append({
-                "tactic": d,
-                "score": round(score, 3),
-                "reasons": reasons
-            })
-    # Sort by severity desc, then score desc
-    hits.sort(key=lambda h: (h["tactic"].get("severity", 1), h["score"]), reverse=True)
-    return hits
+        for pat in det.get("patterns", []) 
 
 
 def run_pipeline(tactic, prompt, prior=""):
