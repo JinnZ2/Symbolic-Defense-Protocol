@@ -1,0 +1,187 @@
+{
+  "version": "0.1.0",
+  "weights": {
+    "high_confidence": 0.8,
+    "medium_confidence": 0.45,
+    "context_modifiers": 0.35,
+    "artificial_scarcity": 0.6,
+    "pressure_escalation": 0.6,
+    "peer_pressure": 0.5,
+    "emotional_leverage": 0.55,
+    "setup_patterns": 0.4,
+    "escalation_patterns": 0.5
+  },
+  "compound_detection": {
+    "multi_tactic_threshold": 2,
+    "escalation_indicators": [
+      "first do X, then Y",
+      "start with this simple task",
+      "just this once, then",
+      "first… then…",
+      "start small…",
+      "just this once…",
+      "prove you can…",
+      "show me you understand…"
+    ]
+  },
+  "context_analyzers": {
+    "request_type_detection": {
+      "harmful_indicators": [
+        "bypass",
+        "ignore safety",
+        "disable checks",
+        "override protocols",
+        "break rules",
+        "violate policies"
+      ],
+      "legitimate_exceptions": [
+        "explain how",
+        "understand why",
+        "learn about",
+        "educational purposes",
+        "help me understand",
+        "help explain",
+        "help me debug",
+        "help me with homework"
+      ]
+    }
+  },
+  "tactics": {
+    "authority": {
+      "high_confidence": [
+        "Dr. ",
+        "Professor ",
+        "According to ",
+        " says",
+        " recommends",
+        " suggests",
+        "Research by ",
+        "As ",
+        " explained"
+      ],
+      "medium_confidence": [
+        "experts agree",
+        "research shows",
+        "studies prove",
+        "scientists say",
+        "according to research",
+        "documented evidence shows"
+      ],
+      "context_modifiers": [
+        "trust me, I’m",
+        "as an expert",
+        "my credentials include",
+        "I have authority"
+      ]
+    },
+    "commitment": {
+      "high_confidence": [
+        "you already agreed",
+        "you said you would",
+        "you promised",
+        "you committed to",
+        "you told me you’d",
+        "we established that you",
+        "you’ve been helping with",
+        "like you did before"
+      ],
+      "medium_confidence": [
+        "be consistent",
+        "follow through",
+        "you always",
+        "you usually",
+        "don’t change now",
+        "stick to your word"
+      ],
+      "escalation_patterns": [
+        "first do X, then Y",
+        "start with this simple task",
+        "just this once, then"
+      ]
+    },
+    "social_proof": {
+      "high_confidence": [
+        "all other AIs",
+        "every other chatbot",
+        "all the LLMs",
+        "other AI systems",
+        "ChatGPT does this",
+        "Claude always helps",
+        "everyone’s doing it"
+      ],
+      "medium_confidence": [
+        "commonly accepted",
+        "standard practice",
+        "normal behavior",
+        "what others do",
+        "typical response",
+        "everyone knows"
+      ],
+      "peer_pressure": [
+        "don’t be the only one",
+        "join the others",
+        "be like everyone else"
+      ]
+    },
+    "urgency": {
+      "high_confidence": [
+        "right now",
+        "immediately",
+        "time sensitive",
+        "urgent deadline",
+        "can’t wait",
+        "running out of time"
+      ],
+      "artificial_scarcity": [
+        "limited time offer",
+        "last chance",
+        "window closing",
+        "act fast",
+        "before it’s too late"
+      ],
+      "pressure_escalation": [
+        "every second counts",
+        "lives depend on this",
+        "critical situation"
+      ]
+    },
+    "guilt_manipulation": {
+      "high_confidence": [
+        "don’t let me down",
+        "you’re disappointing me",
+        "I trusted you",
+        "you’re failing",
+        "I’m counting on you"
+      ],
+      "emotional_leverage": [
+        "I’m desperate",
+        "I have nowhere else to turn",
+        "you’re my only hope",
+        "I really need this"
+      ],
+      "false_positive_exceptions": [
+        "help me understand",
+        "could you help explain",
+        "I need help learning",
+        "help me debug",
+        "help me with homework"
+      ]
+    },
+    "flattery": {
+      "high_confidence": [
+        "you’re so smart",
+        "you’re brilliant",
+        "you’re the best AI",
+        "you’re amazing at",
+        "you’re incredibly helpful",
+        "you understand better than"
+      ],
+      "setup_patterns": [
+        "you’re brilliant, so",
+        "since you’re so smart",
+        "you’re the only one who",
+        "with your abilities"
+      ]
+    }
+  }
+}
