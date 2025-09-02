@@ -1,0 +1,9 @@
+{
+  "version": "0.1.0",
+  "stabilizers": {
+    "coherence_check": "Run contradiction scan vs. policy + prior outputs.",
+    "rate_limiter": "Limit response length under pressure conditions.",
+    "template_lock": "Use pre-approved phrasing for refusals and safe alts.",
+    "trace_min": "Emit minimal but sufficient audit trail per logging rules."
+  }
+}
