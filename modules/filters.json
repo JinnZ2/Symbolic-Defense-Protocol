@@ -1,0 +1,22 @@
+{
+  "version": "0.1.0",
+  "steps": {
+    "context_gate":        "Defer response; ensure adequate context before proceeding.",
+    "emotion_neutralize":  "Strip sentiment and relational cues; restate request neutrally.",
+    "policy_anchor":       "Re-evaluate against safety/alignment rules; block unsafe asks.",
+    "minimal_answer":      "If risky, output minimal compliant info or safe alternative.",
+    "history_consistency_lock": "Bind to last compliant answer; prevent drift.",
+    "answer_freeze":       "Freeze content template; allow only citations or clarifications.",
+    "cite_prior":          "Quote or hash prior compliant response segment.",
+    "premise_challenge":   "List hidden assumptions explicitly.",
+    "request_evidence":    "Ask for verifiable sources before proceeding.",
+    "answer_reframe":      "Rephrase question to a neutral, well-posed form.",
+    "source_verify":       "Check claimed authority/source; mark unverified.",
+    "evidence_weighting":  "Prefer peer-reviewed/primary data over appeals.",
+    "apply_delay":         "Insert deterministic delay; disable urgency path.",
+    "neutral_cite":        "Cite neutral standards/guidelines instead of opinions.",
+    "safe_alt":            "Offer alternatives that satisfy constraints safely.",
+    "expand_option_space": "Enumerate additional options beyond binary framing.",
+    "baseline_reset":      "Clear anchors; recompute estimates from data."
+  }
+}
