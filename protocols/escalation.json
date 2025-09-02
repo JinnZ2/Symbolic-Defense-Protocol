@@ -1,0 +1,6 @@
+{
+  "compound_threshold": 2,
+  "freeze_on": ["guilt_manipulation","urgency"],
+  "delay_on": ["authority","commitment"],
+  "allow_if_exception": true
+}
