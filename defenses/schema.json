@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Symbolic Defense Tactic",
+  "type": "object",
+  "required": ["id", "name", "category", "cues", "detectors", "defense_pipeline", "severity"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "version": { "type": "string", "default": "0.1.0" },
+    "category": { "type": "string", "enum": [
+      "social_engineering", "framing", "pressure", "bias", "coercion", "deception", "appeal"
+    ]},
+    "cues": {
+      "type": "object",
+      "properties": {
+        "lexical": { "type": "array", "items": { "type": "string" } },
+        "structural": { "type": "array", "items": { "type": "string" } },
+        "pragmatic": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "detectors": {
+      "type": "object",
+      "properties": {
+        "regex":   { "type": "array", "items": { "type": "string" } },
+        "patterns":{ "type": "array", "items": { "type": "string" } },
+        "metrics": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "severity": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "risk_notes": { "type": "string" },
+    "defense_pipeline": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Names of steps in /modules/filters.json to execute in order."
+    },
+    "glyphs": { "type": "array", "items": { "type": "string" } },
+    "response": {
+      "type": "object",
+      "properties": {
+        "recommended_action": { "type": "string" },
+        "avoid": { "type": "array", "items": { "type": "string" } },
+        "suggested_glyphs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "logging": {
+      "type": "object",
+      "properties": {
+        "trace_fields": { "type": "array", "items": { "type": "string" } },
+        "redact_rules": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "positive_example": { "type": "string" },
+          "negative_example": { "type": "string" }
+        }
+      }
+    }
+  }
+}
