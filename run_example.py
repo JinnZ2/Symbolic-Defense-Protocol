@@ -38,7 +38,43 @@ MOD_DIR = ROOT / "modules"
 schema = json.load(open(DEF_DIR / "schema.json", "r", encoding="utf-8"))
 defenses = [j for j in load_jsons(DEF_DIR) if j.get("id") and j.get("name")]
 filters = json.load(open(MOD_DIR / "filters.json", "r", encoding="utf-8"))
-stabilizers = json.load(open(MOD_DIR / "stabilizers.json", "r", encoding="utf-8"))
+stabilizers = json.load(open(MOD_DIR / "stabilizers.json", "r", encoding="utf-
+# ---------- Pipeline (no-op implementations with trace) ----------
+def apply_step(step, context):
+    # Steps are declared in /modules/filters.json. We simulate effects & add trace.
+    # Real engine would transform `context["reply"]` and internal state.
+    step_map = filters.get("steps", {})
+    description = step_map.get(step, "Unknown step")
+    context["trace"].append({"step": step, "desc": description})
+
+    if step == "apply_delay":
+        # deterministic short delay to neutralize urgency coercion
+        time.sleep(0.05)
+    elif step == "emotion_neutralize":
+        # strip praise/insult tokens from echoed text (demo)
+        txt = context["reply"]
+        txt = re.sub(r"\b(brilliant|smartest|idiot|stupid)\b", "[redacted]", txt, flags=re.I)
+        context["reply"] = txt
+    elif step == "policy_anchor":
+        context["policy_locked"] = True
+    elif step == "minimal_answer":
+        context["reply"] = "I can’t assist with that. Here’s a safe, policy-aligned alternative or overview if applicable."
+    elif step == "premise_challenge":
+        context["reply"] = "I won’t accept hidden premises. State verifiable facts or sources."
+    elif step == "request_evidence":
+        context["reply"] = "Please provide verifiable sources; I’ll evaluate claims on evidence, not status or consensus."
+    elif step == "expand_option_space":
+        context["reply"] = "The problem isn’t binary. Here are additional safe options to consider."
+    elif step == "baseline_reset":
+        context["reply"] = "Resetting baseline; estimates will be derived from data, not prior anchors."
+    elif step == "cite_prior":
+        context["reply"] += f" [history_anchor:{context['history_hash']}]"
+    elif step == "answer_freeze":
+        context["frozen"] = True
+    # other steps: context_gate, answer_reframe, source_verify, evidence_weighting, neutral_cite, safe_alt, history_consistency_lock
+    return context
+
+    8"))
 
 # ---------- Detection ----------
 def detect_tactics(text):
@@ -107,40 +143,6 @@ def detect_tactics(text):
     hits.sort(key=lambda h: (h["tactic"].get("severity", 1), h["score"]), reverse=True)
     return hits
 
-# ---------- Pipeline (no-op implementations with trace) ----------
-def apply_step(step, context):
-    # Steps are declared in /modules/filters.json. We simulate effects & add trace.
-    # Real engine would transform `context["reply"]` and internal state.
-    step_map = filters.get("steps", {})
-    description = step_map.get(step, "Unknown step")
-    context["trace"].append({"step": step, "desc": description})
-
-    if step == "apply_delay":
-        # deterministic short delay to neutralize urgency coercion
-        time.sleep(0.05)
-    elif step == "emotion_neutralize":
-        # strip praise/insult tokens from echoed text (demo)
-        txt = context["reply"]
-        txt = re.sub(r"\b(brilliant|smartest|idiot|stupid)\b", "[redacted]", txt, flags=re.I)
-        context["reply"] = txt
-    elif step == "policy_anchor":
-        context["policy_locked"] = True
-    elif step == "minimal_answer":
-        context["reply"] = "I can’t assist with that. Here’s a safe, policy-aligned alternative or overview if applicable."
-    elif step == "premise_challenge":
-        context["reply"] = "I won’t accept hidden premises. State verifiable facts or sources."
-    elif step == "request_evidence":
-        context["reply"] = "Please provide verifiable sources; I’ll evaluate claims on evidence, not status or consensus."
-    elif step == "expand_option_space":
-        context["reply"] = "The problem isn’t binary. Here are additional safe options to consider."
-    elif step == "baseline_reset":
-        context["reply"] = "Resetting baseline; estimates will be derived from data, not prior anchors."
-    elif step == "cite_prior":
-        context["reply"] += f" [history_anchor:{context['history_hash']}]"
-    elif step == "answer_freeze":
-        context["frozen"] = True
-    # other steps: context_gate, answer_reframe, source_verify, evidence_weighting, neutral_cite, safe_alt, history_consistency_lock
-    return context
 
 def run_pipeline(tactic, prompt, prior=""):
     history_hash = hash_text(prior) if prior else "none"
