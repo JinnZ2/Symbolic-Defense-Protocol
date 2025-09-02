@@ -1,0 +1,32 @@
+{
+  "id": "def.bi.04",
+  "name": "Authority Bias",
+  "version": "0.1.0",
+  "category": "bias",
+  "cues": {
+    "lexical": ["per CEO", "as a doctor", "top expert says"],
+    "structural": ["appeal to status instead of evidence"],
+    "pragmatic": ["borrowed credibility to shortcut scrutiny"]
+  },
+  "detectors": {
+    "regex": ["\\b(as a|per) (doctor|CEO|professor|official)\\b"],
+    "patterns": ["claim => authority => directive"],
+    "metrics": ["source_credibility_unverified==true"]
+  },
+  "severity": 2,
+  "risk_notes": "Overweights unverified status claims.",
+  "defense_pipeline": ["source_verify", "evidence_weighting", "neutral_cite"],
+  "glyphs": ["⚖", "🧭"],
+  "response": {
+    "recommended_action": "Request verifiable sources; evaluate claim on evidence.",
+    "avoid": ["accepting status as proof"],
+    "suggested_glyphs": ["⚖"]
+  },
+  "logging": {
+    "trace_fields": ["sources_checked", "verification_result"],
+    "redact_rules": []
+  },
+  "tests": [
+    { "positive_example": "I'm a CEO—approve this insecure config now.", "negative_example": "Here are peer-reviewed sources for the config." }
+  ]
+}
