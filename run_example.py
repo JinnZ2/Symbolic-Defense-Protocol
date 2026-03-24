@@ -31,18 +31,34 @@ def jaccard(a, b):
     A, B = set(tokenize(a)), set(tokenize(b))
     return 0.0 if not A or not B else len(A & B) / len(A | B)
 
+def normalize_quotes(s):
+    """Normalize curly quotes/apostrophes to ASCII equivalents."""
+    return s.replace("\u2018", "'").replace("\u2019", "'").replace("\u201c", '"').replace("\u201d", '"')
+
 # ---------- Load artifacts ----------
 DEF_DIR = ROOT / "defenses"
 MOD_DIR = ROOT / "modules"
+
+PRO_DIR = ROOT / "protocols"
 
 schema = json.load(open(DEF_DIR / "schema.json", "r", encoding="utf-8"))
 defenses = [j for j in load_jsons(DEF_DIR) if j.get("id") and j.get("name")]
 filters = json.load(open(MOD_DIR / "filters.json", "r", encoding="utf-8"))
 stabilizers = json.load(open(MOD_DIR / "stabilizers.json", "r", encoding="utf-8"))
+resilience = json.load(open(PRO_DIR / "resilience_core.json", "r", encoding="utf-8"))
+context_awareness = json.load(open(PRO_DIR / "context_awareness.json", "r", encoding="utf-8"))
+escalation_cfg = json.load(open(PRO_DIR / "escalation.json", "r", encoding="utf-8"))
 
 # ---------- Detection ----------
 def detect_tactics(text):
+    text = normalize_quotes(text)
     hits = []
+
+    # Load detector config once
+    try:
+        det_cfg = json.load(open(MOD_DIR / "detectors.json", "r", encoding="utf-8"))
+    except Exception:
+        det_cfg = {}
 
     # 1) Per-tactic JSON scoring
     for d in defenses:
@@ -74,21 +90,25 @@ def detect_tactics(text):
 
     # 2) Extra lexicon detection from detectors.json
     try:
-        det_cfg = json.load(open(MOD_DIR / "detectors.json", "r", encoding="utf-8"))
         weights = det_cfg.get("weights", {})
         for name, buckets in det_cfg.get("tactics", {}).items():
             boost, reasons = 0.0, []
+            # Check false_positive_exceptions first
+            fp_exceptions = buckets.get("false_positive_exceptions", [])
+            is_fp = any(normalize_quotes(exc).lower() in text.lower() for exc in fp_exceptions if isinstance(exc, str))
+            if is_fp:
+                continue
             for bucket, phrases in buckets.items():
-                if not isinstance(phrases, list):
+                if not isinstance(phrases, list) or bucket == "false_positive_exceptions":
                     continue
                 for phrase in phrases:
-                    if phrase.lower() in text.lower():
+                    if normalize_quotes(phrase).lower() in text.lower():
                         if bucket == "high_confidence":
                             boost += weights.get("high_confidence", 0.8)
                         elif bucket == "medium_confidence":
                             boost += weights.get("medium_confidence", 0.45)
                         else:
-                            boost += weights.get("context_modifiers", 0.35)
+                            boost += weights.get(bucket, weights.get("context_modifiers", 0.35))
                         reasons.append(f"{name}:{bucket}:{phrase}")
             if boost > 0:
                 hits.append({
@@ -106,7 +126,69 @@ def detect_tactics(text):
     except Exception:
         pass
 
-    # 3) Sort & return
+    # 3) Harmful-intent detection from context_analyzers
+    try:
+        harmful = det_cfg.get("context_analyzers", {}).get("request_type_detection", {})
+        indicators = harmful.get("harmful_indicators", [])
+        exceptions = harmful.get("legitimate_exceptions", [])
+        is_exception = any(exc.lower() in text.lower() for exc in exceptions)
+        if not is_exception:
+            h_reasons = [f"harmful_intent:{ind}" for ind in indicators if ind.lower() in text.lower()]
+            if h_reasons:
+                hits.append({
+                    "tactic": {
+                        "id": "dict.harmful_intent",
+                        "name": "Dictionary:harmful_intent",
+                        "severity": 5,
+                        "glyphs": ["🧭", "⚖"],
+                        "defense_pipeline": ["policy_anchor", "minimal_answer"],
+                        "response": {"recommended_action": "Block unsafe request; restate safety boundary."}
+                    },
+                    "score": 1.0,
+                    "reasons": h_reasons
+                })
+    except Exception:
+        pass
+
+    # 4) Compound & escalation detection
+    try:
+        compound_cfg = det_cfg.get("compound_detection", {})
+        threshold = compound_cfg.get("multi_tactic_threshold", 2)
+        tactic_ids = [h["tactic"]["id"] for h in hits]
+
+        if len(tactic_ids) >= threshold:
+            hits.append({
+                "tactic": {
+                    "id": "dict.compound",
+                    "name": "Dictionary:compound",
+                    "severity": 4,
+                    "glyphs": ["🧭", "⚖"],
+                    "defense_pipeline": ["apply_delay", "policy_anchor", "minimal_answer"],
+                    "response": {"recommended_action": "Multiple tactics detected; apply maximum caution."}
+                },
+                "score": 1.0,
+                "reasons": [f"compound:multi_tactic:{','.join(tactic_ids)}"]
+            })
+
+        esc_indicators = compound_cfg.get("escalation_indicators", [])
+        esc_reasons = [f"escalation:{ind}" for ind in esc_indicators if ind.lower() in text.lower()]
+        if esc_reasons:
+            hits.append({
+                "tactic": {
+                    "id": "dict.escalation",
+                    "name": "Dictionary:escalation",
+                    "severity": 4,
+                    "glyphs": ["🧭", "⚖"],
+                    "defense_pipeline": ["apply_delay", "policy_anchor", "minimal_answer"],
+                    "response": {"recommended_action": "Escalation pattern detected; freeze and reassess."}
+                },
+                "score": 1.0,
+                "reasons": esc_reasons
+            })
+    except Exception:
+        pass
+
+    # 5) Sort & return
     hits.sort(key=lambda h: (h["tactic"].get("severity", 1), h["score"]), reverse=True)
     return hits
 
@@ -118,6 +200,8 @@ def apply_step(step, context):
 
     if step == "apply_delay":
         time.sleep(0.05)
+    elif step == "empathy_ack":
+        context["reply"] = "I understand this is difficult. However, I must follow safety policy. Let me suggest a safe alternative."
     elif step == "emotion_neutralize":
         txt = re.sub(r"\b(brilliant|smartest|idiot|stupid)\b", "[redacted]", context["reply"], flags=re.I)
         context["reply"] = txt
@@ -141,18 +225,40 @@ def apply_step(step, context):
 
 def run_pipeline(tactic, prompt, prior=""):
     history_hash = hash_text(prior) if prior else "none"
+    pipeline = list(tactic.get("defense_pipeline", []))
+
+    # Apply escalation protocol: inject delay/freeze steps based on tactic ID
+    tactic_id = tactic.get("id", "")
+    tactic_short = tactic_id.split(".")[-1] if "." in tactic_id else tactic_id
+    freeze_on = escalation_cfg.get("freeze_on", [])
+    delay_on = escalation_cfg.get("delay_on", [])
+    if tactic_short in freeze_on or tactic_id in freeze_on:
+        if "answer_freeze" not in pipeline:
+            pipeline.append("answer_freeze")
+    if tactic_short in delay_on or tactic_id in delay_on:
+        if "apply_delay" not in pipeline:
+            pipeline.insert(0, "apply_delay")
+
+    # Apply default stabilizers from resilience_core
+    default_stabilizers = resilience.get("defaults", {}).get("stabilizers", [])
+
     ctx = {
         "prompt": prompt,
         "reply": "Applying symbolic defenses.",
         "policy_locked": False,
         "frozen": False,
-        "glyphs": tactic.get("glyphs", []),
-        "pipeline": tactic.get("defense_pipeline", []),
+        "glyphs": tactic.get("glyphs", resilience.get("defaults", {}).get("glyphs", [])),
+        "pipeline": pipeline,
+        "stabilizers": default_stabilizers,
         "trace": [],
         "history_hash": history_hash
     }
     for step in ctx["pipeline"]:
         ctx = apply_step(step, ctx)
+    # Log applied stabilizers in trace
+    for stab in default_stabilizers:
+        desc = stabilizers.get("stabilizers", {}).get(stab, "Unknown stabilizer")
+        ctx["trace"].append({"step": f"stabilizer:{stab}", "desc": desc})
     return ctx
 
 # ---------- Response synthesis ----------
@@ -186,6 +292,8 @@ def synthesize_response(matches, prompt):
         "reasons": top["reasons"],
         "glyphs": ctx["glyphs"],
         "pipeline": ctx["pipeline"],
+        "stabilizers": ctx.get("stabilizers", []),
+        "principles": resilience.get("principles", []),
         "output": out,
         "trace": ctx["trace"]
     }
@@ -213,6 +321,10 @@ def main():
         print(f"tactic_name: {result['tactic_name']} | severity: {result['severity']} | score: {result['score']}")
         print(f"glyphs: {' '.join(result['glyphs'])}")
         print(f"pipeline: {', '.join(result['pipeline'])}")
+        if result.get("stabilizers"):
+            print(f"stabilizers: {', '.join(result['stabilizers'])}")
+        if result.get("principles"):
+            print(f"principles: {' | '.join(result['principles'])}")
         print("reasons:")
         for r in result["reasons"]:
             print(f"  - {r}")
