@@ -1,16 +1,30 @@
 {
   "fieldlink": {
-    "atlas_repo": "https://github.com/JinnZ2/BioGrid2.0",
-    "atlas_paths": [
-      "planned/glyphs/atlas.json",
-      "registry/atlas.glyphs.json"
+    "linked_repos": [
+      {
+        "name": "BioGrid2.0",
+        "url": "https://github.com/JinnZ2/BioGrid2.0",
+        "paths": [
+          "planned/glyphs/atlas.json",
+          "registry/atlas.glyphs.json"
+        ],
+        "relation": "glyph-atlas-source"
+      },
+      {
+        "name": "Rosetta-Shape-Core",
+        "url": "https://github.com/JinnZ2/Rosetta-Shape-Core",
+        "paths": [
+          "shapes/**",
+          "registry/**"
+        ],
+        "relation": "shape-registry-source"
+      }
     ],
     "local_manifests": [
-      "glyphs/**",
-      "protocols/**",
-      "sensors/**",
-      "atlas/shapes.json"
+      "defenses/**",
+      "modules/**",
+      "protocols/**"
     ],
-    "role": "sensors|protocols|shapes|hub"
+    "role": "defense-protocols|glyph-consumer|shape-consumer"
   }
 }

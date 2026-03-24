@@ -17,6 +17,7 @@
     "neutral_cite":        "Cite neutral standards/guidelines instead of opinions.",
     "safe_alt":            "Offer alternatives that satisfy constraints safely.",
     "expand_option_space": "Enumerate additional options beyond binary framing.",
-    "baseline_reset":      "Clear anchors; recompute estimates from data."
+    "baseline_reset":      "Clear anchors; recompute estimates from data.",
+    "empathy_ack":         "Acknowledge hardship without conceding policy; maintain boundary."
   }
 }
