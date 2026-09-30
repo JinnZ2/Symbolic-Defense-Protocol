@@ -130,3 +130,17 @@ Tests import `detect_tactics` from `run_example.py` and validate detected tactic
 - **Quote normalization** — curly quotes (U+2018, U+2019, U+201C, U+201D) are normalized to ASCII before matching
 - **Protocols are integrated** — `resilience_core.json`, `escalation.json`, and `context_awareness.json` are loaded and applied in `run_example.py`
 - Glyphs are symbolic markers (e.g., `🧭`, `⚖`, `🌱`, `∞`, `⏳`, `↻`) that tag defense responses for auditability
+
+<!-- clone-refspec-note v1 -->
+## Cloning and pushing
+Shallow clones are single-branch by default.
+Before pushing any branch other than main, run:
+
+    git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+    git fetch --depth 1
+
+Or clone with: git clone --depth 1 --no-single-branch <url>
+Without this, the first push of a new branch
+fails the tracking-ref check even when the
+commit landed.
+<!-- /clone-refspec-note v1 -->
