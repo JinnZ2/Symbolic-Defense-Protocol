@@ -67,4 +67,4 @@ is the one request, not an additional license condition.
 
 ## In this repo
 
-Note 2026-10-14: Existing conflicting license labels remain unchanged and unresolved; this reading layer does not extend or settle any original license.
+The owner’s 2026-10-14 CC0 decision applies to eligible owner-authored material. See [LICENSE](LICENSE) and [LICENSE_HISTORY.md](LICENSE_HISTORY.md) for preserved history, provenance, and scope.

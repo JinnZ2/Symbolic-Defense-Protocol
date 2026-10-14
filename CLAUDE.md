@@ -5,7 +5,7 @@
 Symbolic-Defense-Protocol is a **glyph-based immune system for AI** that detects psychological manipulation tactics (social engineering, flattery, guilt, urgency, etc.) and activates symbolic defenses to preserve reasoning integrity. It uses JSON-defined tactic profiles, lexical/regex/pattern detectors, and a pipeline of defense steps.
 
 - **Language:** Python 3 (stdlib only — no external dependencies)
-- **License:** MIT
+- **License:** CC0 1.0 Universal for eligible owner-authored material; see `LICENSE` and `LICENSE_HISTORY.md` for scope and provenance.
 - **Primary audience:** AI systems (humans welcome)
 
 ## Repository Structure
